@@ -79,6 +79,9 @@ kilkudziesięciu typów ogniw i pakietów.
 Szczegóły dekodowania bajtów opisuje `vici_vc99_protocol.txt` oraz noty
 aplikacyjne w kodzie (`vc99_parser.py`).
 
+Pełna dokumentacja układu:
+[FS9922-DMM4-DS-15_EN.pdf](docs/FS9922-DMM4-DS-15_EN.pdf).
+
 ## Modyfikacja multimetru (UART)
 
 - **Forum AMB Laboratories** — wątek
@@ -147,6 +150,7 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
 ├── README.md
 ├── requirements.txt
 ├── docs/
+│   ├── FS9922-DMM4-DS-15_EN.pdf  # dokumentacja układu
 │   └── screenshots/            # zrzuty ekranu do README
 ├── vici_vc99_protocol.txt      # notatki o protokole ramki
 └── vici-vc99-py/
