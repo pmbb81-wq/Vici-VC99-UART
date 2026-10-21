@@ -77,6 +77,13 @@ kilkudziesięciu typów ogniw i pakietów.
 Szczegóły dekodowania bajtów opisuje `vici_vc99_protocol.txt` oraz noty
 aplikacyjne w kodzie (`vc99_parser.py`).
 
+## Modyfikacja multimetru (UART)
+
+Film pokazujący modyfikację VICI VC99 do logowania szeregowego z użyciem
+czujnika TCRT5000:
+
+[![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
+
 ## Instalacja (gotowy EXE)
 
 Pobierz najnowszą wersję:
