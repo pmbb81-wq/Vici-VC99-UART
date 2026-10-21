@@ -105,6 +105,19 @@ Pełna dokumentacja układu:
 
   [![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
 
+## Obudowa 3D (STL)
+
+Drukowana obudowa na moduł UART do VC99 — dwa elementy (korpus + pokrywa),
+wymiary gabarytowe ok. **85 × 27 × 10 mm**. Plik do pobrania:
+[stl-3d/uart2.stl](stl-3d/uart2.stl).
+
+<p align="center">
+  <img src="docs/stl-preview.png" alt="Obudowa UART – podgląd STL" width="620">
+</p>
+
+Druk w skali **100%** (wymiary w milimetrach). Zalecane PLA lub PETG,
+warstwa 0,2 mm, wypełnienie 20–30%.
+
 ## Recenzje i teardowny
 
 - **EEVblog — „[Vichy VC99 Multimeter Review and Teardown](https://www.eevblog.com/forum/testgear/vichy-vc99-multimeter-review-and-teardown/)”**
@@ -155,8 +168,11 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
 ├── README.md
 ├── LICENSE                     # licencja MIT
 ├── requirements.txt
+├── stl-3d/
+│   └── uart2.stl               # obudowa do druku 3D
 ├── docs/
 │   ├── FS9922-DMM4-DS-15_EN.pdf  # dokumentacja układu
+│   ├── stl-preview.png         # podgląd obudowy
 │   └── screenshots/            # zrzuty ekranu do README
 ├── vici_vc99_protocol.txt      # notatki o protokole ramki
 └── vici-vc99-py/
