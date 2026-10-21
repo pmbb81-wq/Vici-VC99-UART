@@ -13,6 +13,7 @@ kilkudziesięciu typów ogniw i pakietów.
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![Protocol](https://img.shields.io/badge/UART-2400%208N1-orange)
 [![Release](https://img.shields.io/github/v/release/pmbb81-wq/Vici-VC99-UART)](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## Zrzuty ekranu
 
@@ -148,6 +149,7 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
 ```
 .
 ├── README.md
+├── LICENSE                     # licencja MIT
 ├── requirements.txt
 ├── docs/
 │   ├── FS9922-DMM4-DS-15_EN.pdf  # dokumentacja układu
@@ -173,6 +175,13 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
   ogniwa wpływają na wynik.
 - Dźwięki korzystają z `winsound`, więc działają tylko w Windows.
 
+## Licencja
+
+Projekt jest udostępniony na licencji **MIT** — możesz go dowolnie kopiować,
+modyfikować, publikować i rozpowszechniać, także komercyjnie, pod warunkiem
+zachowania informacji o autorze i treści licencji. Pełna treść:
+[LICENSE](LICENSE).
+
 ## Autor
 
 **Krzysztof Nowacki** — [github.com/pmbb81-wq](https://github.com/pmbb81-wq)
@@ -187,3 +196,5 @@ continuity and diode buzzers, a BGA reflow profile tab with live
 thermocouple tracking, and battery SoC estimation with 33 chemistry/pack
 profiles. Built with Python and PyQt5; a standalone EXE is available in
 Releases.
+
+Released under the MIT license — free to use, copy, modify and redistribute.
