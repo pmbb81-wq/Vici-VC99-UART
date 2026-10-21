@@ -90,6 +90,15 @@ aplikacyjne w kodzie (`vc99_parser.py`).
 
   [![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
 
+## Recenzje i teardowny
+
+- **EEVblog — „[Vichy VC99 Multimeter Review and Teardown](https://www.eevblog.com/forum/testgear/vichy-vc99-multimeter-review-and-teardown/)”**
+  Recenzja i rozbiórka taniego (ok. 35 USD) multimetru. Potwierdza układ
+  **FS9922-DMM4** (Fortune Semiconductor) oraz to, że wyprowadzenia RS232
+  są dostępne na pinach układu, mimo braku złącza w obudowie. W wątku
+  opisano także mod na bezprzewodowe logowanie (adapter Bluetooth RN-42)
+  oraz uwagi o szybkości autorangi i trwałości przełącznika zakresów.
+
 ## Instalacja (gotowy EXE)
 
 Pobierz najnowszą wersję:
