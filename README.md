@@ -73,16 +73,22 @@ kilkudziesięciu typów ogniw i pakietów.
 - Ramka: **14 bajtów**, zakończona `0D 0A`.
 - Zliczenia: 6000 counts, bargraf 61 segmentów.
 - Przepływność: ok. **17 ramek/s** (~58 ms na ramkę).
+- W VC99 transmisję włącza się **przytrzymaniem przycisku REL** — na
+  wyświetlaczu pojawia się oznaczenie „RS232"; ponowne przytrzymanie wyłącza.
 
 Szczegóły dekodowania bajtów opisuje `vici_vc99_protocol.txt` oraz noty
 aplikacyjne w kodzie (`vc99_parser.py`).
 
 ## Modyfikacja multimetru (UART)
 
-Film pokazujący modyfikację VICI VC99 do logowania szeregowego z użyciem
-czujnika TCRT5000:
+- **Forum AMB Laboratories** — wątek
+  „[DIY: hacking multimeters for RS232 data logging output](https://www.amb.org/forum/diy-hacking-multimeters-for-rs232-data-logging-output-t1210.html)”:
+  wyprowadzenie sygnału RS232 z układu multimetru (m.in. VC99), odbiornik IR
+  na fototranzystorze, schemat częściowy (D8/D9) oraz wskazówka o włączaniu
+  transmisji przyciskiem **REL**. Warto przeczytać przed modyfikacją.
+- **Film** — modyfikacja VC99 z czujnikiem TCRT5000:
 
-[![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
+  [![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
 
 ## Instalacja (gotowy EXE)
 
