@@ -98,6 +98,11 @@ aplikacyjne w kodzie (`vc99_parser.py`).
   są dostępne na pinach układu, mimo braku złącza w obudowie. W wątku
   opisano także mod na bezprzewodowe logowanie (adapter Bluetooth RN-42)
   oraz uwagi o szybkości autorangi i trwałości przełącznika zakresów.
+- **Digital Chip — „[Цифровой мультиметр Vichy VC99](https://digitalchip.ru/vichy-vc99/)”**
+  Rosyjskojęzyczna recenzja z rozpakowaniem, zdjęciami i pełną tabelą
+  specyfikacji (DCV/ACV, prąd, rezystancja, pojemność, częstotliwość, hFE,
+  dioda, ciągłość, temperatura, termopara typu K). Dobre źródło danych
+  katalogowych i wrażeń z użytkowania.
 
 ## Instalacja (gotowy EXE)
 
