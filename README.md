@@ -86,6 +86,13 @@ aplikacyjne w kodzie (`vc99_parser.py`).
   wyprowadzenie sygnału RS232 z układu multimetru (m.in. VC99), odbiornik IR
   na fototranzystorze, schemat częściowy (D8/D9) oraz wskazówka o włączaniu
   transmisji przyciskiem **REL**. Warto przeczytać przed modyfikacją.
+- **Mysku.club — „[Мультиметр Vici VC99 (Vichy VC99) — Модернизация](https://mysku.club/blog/aliexpress/32413.html)”**
+  Szczegółowa modyfikacja VC99: wyprowadzenie **RS232 z pinu 92** układu
+  FS9922-DMM4 (przez FTDI z separacją galwaniczną), podświetlenie LCD z pinu
+  74 (długie przytrzymanie **HOLD**), przyspieszenie pracy przez zamianę kwarcu
+  4 MHz na 8 MHz z przełącznikiem (w trybie turbo częstotliwość i pojemność
+  są mierzone błędnie 2×) oraz zasilanie z Li-ion 16650 + TP4056. Artykuł
+  zawiera schemat po modyfikacji i listę programów do logowania.
 - **Film** — modyfikacja VC99 z czujnikiem TCRT5000:
 
   [![Vici VC99 DMM serial logging mod using TCRT5000](https://img.youtube.com/vi/FPksaFYixVQ/hqdefault.jpg)](https://www.youtube.com/watch?v=FPksaFYixVQ)
