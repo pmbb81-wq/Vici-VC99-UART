@@ -1,5 +1,9 @@
 # VICI VC99 UART — aplikacja PC
 
+<p align="center">
+  <img src="docs/screenshots/vc97a-slideshow.gif" alt="VICI VC97A" width="700">
+</p>
+
 Aplikacja desktopowa dla Windows do odczytu, wizualizacji i analizy pomiarów
 z multimetru **VICI VC99** podłączonego przez UART/RS232 (2400 8N1).
 
