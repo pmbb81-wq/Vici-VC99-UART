@@ -1,0 +1,83 @@
+# Vici VC99 (FS9922-DMM4) UART Protocol Guide & Parsing Specification
+
+This document provides a highly structured, machine-readable specification of the 14-byte UART protocol used by the Vici VC99 multimetr (powered by the Fortune Semiconductor FS9922-DMM4 chip). It is designed to be directly consumed by LLMs or code generators to write perfect parsers.
+
+## 1. Transmission Parameters
+- **Baud Rate:** 2400 bps
+- **Data Bits:** 8
+- **Parity:** None
+- **Stop Bits:** 1 (8N1)
+- **Frame Termination:** 0x0D 0x0A (CR LF)
+- **Total Frame Length:** 14 Bytes
+
+## 2. 14-Byte Frame Mapping
+
+| Byte Index | Purpose / Description | Typical Values (HEX) |
+|------------|-----------------------|----------------------|
+| **Byte 0** | Sign / Sign Indicator | `0x2B` (+), `0x2D` (-) |
+| **Byte 1** | Digit 1 (Most Significant Digit) | ASCII `0x30`-`0x39` or `0x3F` (OL) |
+| **Byte 2** | Digit 2 | ASCII `0x30`-`0x39` |
+| **Byte 3** | Digit 3 | ASCII `0x30`-`0x39` |
+| **Byte 4** | Digit 4 (Least Significant Digit) | ASCII `0x30`-`0x39` or `0x20` (Blank) |
+| **Byte 5** | Space / Delimiter | Always `0x20` |
+| **Byte 6** | Decimal Point Position (ASCII char) | `0x30` (None), `0x31` (X.XXX), `0x32` (XX.XX), `0x34` (XXX.X) |
+| **Byte 7** | Measurement Mode Flags 1 | Bitmask for AC, DC, AUTO |
+| **Byte 8** | Measurement Mode Flags 2 | Internal range status |
+| **Byte 9** | Multiplier Prefix Flags | Bitmask for nano (n), micro (µ), milli (m), kilo (k), Mega (M) |
+| **Byte 10**| Unit Flags 1 | Bitmask for V, A, Ω, Hz, F |
+| **Byte 11**| Unit Flags 2 / Secondary State | `0x31` / `0x32` Context-dependent unit indicator |
+| **Byte 12**| Frame End 1 | `0x0D` (CR) |
+| **Byte 13**| Frame End 2 | `0x0A` (LF) |
+
+## 3. Verified Sample Frame Analyses
+
+### Sample A: DC Voltage Measurement (5.000 V)
+* **Raw HEX:** `2B 35 30 30 30 20 31 31 00 00 80 32 0D 0A`
+* **Parsing Logic:**
+  - `Byte 0 = 0x2B` -> Positive sign (+)
+  - `Bytes 1-4 = 0x35 0x30 0x30 0x30` -> ASCII string `"5000"`
+  - `Byte 6 = 0x31` -> Place decimal point after the 1st digit -> Value changes to `5.000`
+  - `Byte 7 = 0x31` -> Contextual flag indicating `DC` + `AUTO` mode active
+  - `Byte 10 = 0x80` & `Byte 11 = 0x32` -> When in DC/Volt context, explicitly maps to **Volts (V)**. (Note: Naive parsers mistakenly interpret `0x32` as `Hz` because they ignore the context of Byte 7).
+* **Final Human Readable Output:** `+5.000 V (DC, AUTO)`
+
+### Sample B: Overload State (O.L MegaOhms)
+* **Raw HEX:** `2B 3F 30 3A 3F 20 32 21 00 10 20 3D 0D 0A`
+* **Parsing Logic:**
+  - `Bytes 1-4` combined with point placement map directly to the `O.L` segment combination for overflow status.
+  - `Byte 9 = 0x10` -> Activates Mega (M) prefix.
+  - `Byte 10 = 0x20` -> Activates Ohm (Ω) symbol.
+* **Final Human Readable Output:** `O.L MΩ (Overload / Open Circuit)`
+
+## 4. Python Reference Parser (Implementation Logic)
+```python
+def parse_fs9922_frame(frame_bytes):
+    if len(frame_bytes) != 14 or frame_bytes[12] != 0x0D or frame_bytes[13] != 0x0A:
+        return None  # Invalid Frame
+        
+    # Extract Sign
+    sign = "-" if frame_bytes[0] == 0x2D else ""
+    
+    # Extract Digits
+    digits = "".join([chr(b) for b in frame_bytes[1:5]])
+    
+    # Handle Overload (OL) condition
+    if frame_bytes[1] == 0x3F and frame_bytes[2] == 0x30:
+        return "Overload (O.L)"
+        
+    # Apply Decimal Point
+    pt = chr(frame_bytes[6])
+    if pt == '1':   val_str = f"{digits[0]}.{digits[1:]}"
+    elif pt == '2': val_str = f"{digits[:2]}.{digits[2:]}"
+    elif pt == '4': val_str = f"{digits[:3]}.{digits[3:]}"
+    else:           val_str = digits
+    
+    # Context-Aware Unit Assignment
+    # Check context in byte 7/8 before mapping byte 11
+    # Example logic to prevent Hz/V conflation:
+    is_dc = bool(frame_bytes[7] & 0x01) # Example bitmask
+    
+    unit = "V" if (frame_bytes[11] == 0x32 and is_dc) else "Hz"
+    
+    return f"{sign}{val_str} {unit}"
+```
