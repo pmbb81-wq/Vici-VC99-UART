@@ -12,6 +12,7 @@ kilkudziesięciu typów ogniw i pakietów.
 ![PyQt5](https://img.shields.io/badge/GUI-PyQt5-green)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 ![Protocol](https://img.shields.io/badge/UART-2400%208N1-orange)
+[![Release](https://img.shields.io/github/v/release/pmbb81-wq/Vici-VC99-UART)](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)
 
 ## Zrzuty ekranu
 
@@ -77,6 +78,9 @@ Szczegóły dekodowania bajtów opisuje `vici_vc99_protocol.txt` oraz noty
 aplikacyjne w kodzie (`vc99_parser.py`).
 
 ## Instalacja (gotowy EXE)
+
+Pobierz najnowszą wersję:
+**[Releases → VICI_VC99_FINAL.exe](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)**
 
 1. Wejdź w zakładkę **Releases** tego repozytorium.
 2. Pobierz `VICI_VC99_FINAL.exe`.
