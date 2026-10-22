@@ -167,8 +167,10 @@ Pobierz najnowszą wersję:
 **[Releases → VICI VC99 UART 1.1](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)**
 
 1. Wejdź w zakładkę **Releases** tego repozytorium.
-2. Pobierz `VICI_VC99_1.1_Windows.zip` (EXE + wymagany HTML) albo osobno
-   `VICI_VC99_FINAL.exe` i `gemini-code-lcd 2.html`.
+2. Pobierz `VICI_VC99_1.1_Windows.zip` (EXE + HTML w poprawnej strukturze).
+   Osobno dostępne są też `VICI_VC99_FINAL.exe` i pojedynczy HTML; GitHub
+   zapisuje go jako `gemini-code-lcd.2.html` — po pobraniu zmień nazwę na
+   `gemini-code-lcd 2.html`.
 3. Rozpakuj pliki tak, aby zachować strukturę:
    ```
    VICI_VC99_FINAL.exe
