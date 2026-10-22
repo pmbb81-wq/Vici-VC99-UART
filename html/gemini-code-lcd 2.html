@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FS9922-DMM4 Receiver & Multi-Theme LCD Display</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+    
+    /* 1. DOMYŚLNY: ZIELONY CLASSIC */
+    :root {
+      --lcd-bg: #0f1912;
+      --lcd-border: #1e293b;
+      --lcd-on: #22c55e;
+      --lcd-off: #14291a;
+      --lcd-off-bg: #112215;
+      --lcd-glow: rgba(34, 197, 94, 0.6);
+      --bar-glow: rgba(34, 197, 94, 0.8);
+    }
+
+    /* 2. BURSZTYNOWY (AMBER) */
+    [data-theme="amber"] {
+      --lcd-bg: #1a1205;
+      --lcd-border: #3b281e;
+      --lcd-on: #f97316;
+      --lcd-off: #2b1d10;
+      --lcd-off-bg: #22170c;
+      --lcd-glow: rgba(249, 115, 22, 0.6);
+      --bar-glow: rgba(249, 115, 22, 0.8);
+    }
+
+    /* 3. CYJAN (CYAN OLED) */
+    [data-theme="cyan"] {
+      --lcd-bg: #081622;
+      --lcd-border: #1e293b;
+      --lcd-on: #06b6d4;
+      --lcd-off: #0e2938;
+      --lcd-off-bg: #0b1f2b;
+      --lcd-glow: rgba(6, 182, 212, 0.6);
+      --bar-glow: rgba(6, 182, 212, 0.8);
+    }
+
+    /* 4. BIAŁY NEON (BRIGHT WHITE) */
+    [data-theme="white"] {
+      --lcd-bg: #121316;
+      --lcd-border: #2d3139;
+      --lcd-on: #f8fafc;
+      --lcd-off: #22252c;
+      --lcd-off-bg: #1a1c23;
+      --lcd-glow: rgba(248, 250, 252, 0.6);
+      --bar-glow: rgba(248, 250, 252, 0.8);
+    }
+
+    /* 5. CZERWONY (DARK RED) */
+    [data-theme="red"] {
+      --lcd-bg: #1a0808;
+      --lcd-border: #381212;
+      --lcd-on: #ef4444;
+      --lcd-off: #2e1111;
+      --lcd-off-bg: #240c0c;
+      --lcd-glow: rgba(239, 68, 68, 0.6);
+      --bar-glow: rgba(239, 68, 68, 0.8);
+    }
+
+    /* 6. FIOLETOWY (PURPLE NEON) */
+    [data-theme="purple"] {
+      --lcd-bg: #160822;
+      --lcd-border: #2c1e3b;
+      --lcd-on: #a855f7;
+      --lcd-off: #261138;
+      --lcd-off-bg: #1e0d2e;
+      --lcd-glow: rgba(168, 85, 247, 0.6);
+      --bar-glow: rgba(168, 85, 247, 0.8);
+    }
+
+    /* 7. ŻÓŁTY (LAB YELLOW) */
+    [data-theme="yellow"] {
+      --lcd-bg: #1a1805;
+      --lcd-border: #3b361e;
+      --lcd-on: #eab308;
+      --lcd-off: #2b2710;
+      --lcd-off-bg: #211f0c;
+      --lcd-glow: rgba(234, 179, 8, 0.6);
+      --bar-glow: rgba(234, 179, 8, 0.8);
+    }
+
+    /* 8. CLASSIC GAMEBOY (ODWRÓCONY MONOCHROM) */
+    [data-theme="gameboy"] {
+      --lcd-bg: #8b956d;
+      --lcd-border: #4b5338;
+      --lcd-on: #0f380f;
+      --lcd-off: #78825b;
+      --lcd-off-bg: #7f8a61;
+      --lcd-glow: rgba(15, 56, 15, 0.2);
+      --bar-glow: rgba(15, 56, 15, 0.4);
+    }
+
+    /* 9. CRUISE BLUE */
+    [data-theme="blue"] {
+      --lcd-bg: #050e1a;
+      --lcd-border: #122138;
+      --lcd-on: #3b82f6;
+      --lcd-off: #101c2e;
+      --lcd-off-bg: #0b1524;
+      --lcd-glow: rgba(59, 130, 246, 0.6);
+      --bar-glow: rgba(59, 130, 246, 0.8);
+    }
+
+    /* 10. EMERALD GREEN */
+    [data-theme="emerald"] {
+      --lcd-bg: #061811;
+      --lcd-border: #123829;
+      --lcd-on: #10b981;
+      --lcd-off: #0e2e22;
+      --lcd-off-bg: #092118;
+      --lcd-glow: rgba(16, 185, 129, 0.6);
+      --bar-glow: rgba(16, 185, 129, 0.8);
+    }
+
+    body {
+      background-color: #0b0f12;
+      color: #e2e8f0;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .lcd-container {
+      background-color: var(--lcd-bg);
+      border: 4px solid var(--lcd-border);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 15px var(--lcd-glow);
+      transition: all 0.3s ease;
+    }
+
+    .lcd-text-on {
+      color: var(--lcd-on);
+      text-shadow: 0 0 8px var(--lcd-glow);
+      transition: color 0.3s ease;
+    }
+
+    .lcd-text-off {
+      color: var(--lcd-off);
+      transition: color 0.3s ease;
+    }
+
+    .segment-off {
+      fill: var(--lcd-off-bg);
+      transition: fill 0.3s ease;
+    }
+
+    .segment-on {
+      fill: var(--lcd-on);
+      filter: drop-shadow(0px 0px 2px var(--lcd-glow));
+      transition: fill 0.3s ease;
+    }
+
+    .bar-seg-off {
+      background-color: var(--lcd-off-bg);
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45);
+      transition: background-color 0.3s ease;
+    }
+
+    .bar-seg-on {
+      background-color: var(--lcd-on);
+      transition: background-color 0.3s ease;
+    }
+
+    #bargraph > div {
+      margin-right: 4px;
+    }
+
+    #bargraph > div:last-child {
+      margin-right: 0;
+    }
+
+    #mode-diode, #mode-beep {
+      display: inline-flex;
+      align-items: center;
+      line-height: 0;
+    }
+
+    .mode-icon {
+      width: 1.15em;
+      height: 1.15em;
+    }
+
+    .lcd-text-on .mode-icon {
+      filter: drop-shadow(0 0 3px var(--lcd-glow));
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-4xl w-full space-y-6">
+    
+    <!-- NAGŁÓWEK Z POŁĄCZENIEM COM I OPCJAMI -->
+    <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800 gap-4">
+      <div>
+        <h1 class="text-xl font-bold text-green-400">FS9922-DMM4 Receiver</h1>
+        <p id="status-text" class="text-xs text-slate-400">Stan: Rozłączony</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- SELEKTOR MOTYWÓW KOLORYSTYCZNYCH -->
+        <div class="flex items-center gap-2">
+          <label for="themeSelect" class="text-xs text-slate-400 font-bold">KOLOR LCD:</label>
+          <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-slate-950 text-slate-200 text-xs font-bold p-2.5 rounded-lg border border-slate-700 outline-none focus:border-green-500 cursor-pointer">
+            <option value="green">🟩 Klasyczny Zielony</option>
+            <option value="amber">🟧 Bursztynowy Vintage</option>
+            <option value="cyan">🟦 Błękit Cyjan OLED</option>
+            <option value="white">⬜ Jasny Biały Neon</option>
+            <option value="red">🟥 Czerwony (Dark Red)</option>
+            <option value="purple">🟪 Fioletowy Neon</option>
+            <option value="yellow">🟨 Żółty Laboratoryjny</option>
+            <option value="gameboy">🟫 GameBoy Monochrom</option>
+            <option value="blue">🟦 Głęboki Niebieski</option>
+            <option value="emerald">🟩 Szmaragdowa Limonka</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WYŚWIETLACZ LCD -->
+    <div class="lcd-container p-6 rounded-2xl relative select-none">
+      
+      <!-- GÓRNY PASEK IKON STANU -->
+      <div class="flex justify-between items-center text-sm md:text-base font-bold mb-4 tracking-wider">
+        <span id="icon-RS232" class="lcd-text-off">RS232</span>
+        <span id="icon-AUTO" class="lcd-text-off">AUTO</span>
+        <span id="icon-HOLD" class="lcd-text-off">HOLD</span>
+        <span id="icon-MAX" class="lcd-text-off">MAX</span>
+        <span id="icon-MIN" class="lcd-text-off">MIN</span>
+        <span id="icon-REL" class="lcd-text-off">Δ REL</span>
+        <span id="icon-APO" class="lcd-text-off">APO</span>
+        <span id="icon-BAT" class="lcd-text-off">🔋 LBT</span>
+      </div>
+
+      <!-- GŁÓWNA SEKCJA POMIAROWA -->
+      <div class="grid grid-cols-12 items-center my-4">
+        
+        <!-- TRYB DC / AC -->
+        <div class="col-span-2 flex flex-col gap-2 font-bold text-lg md:text-2xl">
+          <span id="icon-DC" class="lcd-text-off">DC</span>
+          <span id="icon-AC" class="lcd-text-off">AC</span>
+          <span id="mode-diode" class="lcd-text-off" title="Dioda">
+            <svg class="mode-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12h5"></path>
+              <path d="M7 6v12l8-6z" fill="currentColor" stroke="none"></path>
+              <path d="M15 6v12"></path>
+              <path d="M17 12h5"></path>
+            </svg>
+          </span>
+          <span id="mode-beep" class="lcd-text-off" title="Ciągłość / buzzer">
+            <svg class="mode-icon" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10h4l5-4v12l-5-4H3z" fill="currentColor" stroke="none"></path>
+              <path d="M15 9.5c1.2 0.8 1.2 4.2 0 5"></path>
+              <path d="M18 7c2.2 1.8 2.2 8.2 0 10"></path>
+            </svg>
+          </span>
+        </div>
+
+        <!-- 4 CYFRY 7-SEGMENTOWE + MINUS I KROPKI -->
+        <div class="col-span-8 flex justify-center items-center gap-1 md:gap-3">
+          
+          <!-- ZNAK MINUS -->
+          <div class="w-4 md:w-6 flex justify-center">
+            <div id="icon-MINUS" class="w-full h-2 md:h-3 rounded-sm segment-off"></div>
+          </div>
+
+          <!-- SVG CYFRY 7-SEGMENTOWE -->
+          <svg id="svgDigits" viewBox="0 0 400 120" class="w-full h-auto max-h-36">
+            <defs>
+              <g id="seg-h"><polygon points="5,0 35,0 40,5 35,10 5,10 0,5" /></g>
+              <g id="seg-v"><polygon points="0,5 5,0 10,5 10,35 5,40 0,35" /></g>
+            </defs>
+
+            <!-- Cyfra 1 -->
+            <g transform="translate(10, 5) skewX(-6)">
+              <use id="d0-a" href="#seg-h" x="5" y="0" class="segment-off"/>
+              <use id="d0-f" href="#seg-v" x="0" y="5" class="segment-off"/>
+              <use id="d0-b" href="#seg-v" x="35" y="5" class="segment-off"/>
+              <use id="d0-g" href="#seg-h" x="5" y="42" class="segment-off"/>
+              <use id="d0-e" href="#seg-v" x="0" y="47" class="segment-off"/>
+              <use id="d0-c" href="#seg-v" x="35" y="47" class="segment-off"/>
+              <use id="d0-d" href="#seg-h" x="5" y="85" class="segment-off"/>
+            </g>
+            <circle id="dp-1" cx="60" cy="92" r="4" class="segment-off"/>
+
+            <!-- Cyfra 2 -->
+            <g transform="translate(80, 5) skewX(-6)">
+              <use id="d1-a" href="#seg-h" x="5" y="0" class="segment-off"/>
+              <use id="d1-f" href="#seg-v" x="0" y="5" class="segment-off"/>
+              <use id="d1-b" href="#seg-v" x="35" y="5" class="segment-off"/>
+              <use id="d1-g" href="#seg-h" x="5" y="42" class="segment-off"/>
+              <use id="d1-e" href="#seg-v" x="0" y="47" class="segment-off"/>
+              <use id="d1-c" href="#seg-v" x="35" y="47" class="segment-off"/>
+              <use id="d1-d" href="#seg-h" x="5" y="85" class="segment-off"/>
+            </g>
+            <circle id="dp-2" cx="130" cy="92" r="4" class="segment-off"/>
+
+            <!-- Cyfra 3 -->
+            <g transform="translate(150, 5) skewX(-6)">
+              <use id="d2-a" href="#seg-h" x="5" y="0" class="segment-off"/>
+              <use id="d2-f" href="#seg-v" x="0" y="5" class="segment-off"/>
+              <use id="d2-b" href="#seg-v" x="35" y="5" class="segment-off"/>
+              <use id="d2-g" href="#seg-h" x="5" y="42" class="segment-off"/>
+              <use id="d2-e" href="#seg-v" x="0" y="47" class="segment-off"/>
+              <use id="d2-c" href="#seg-v" x="35" y="47" class="segment-off"/>
+              <use id="d2-d" href="#seg-h" x="5" y="85" class="segment-off"/>
+            </g>
+            <circle id="dp-3" cx="200" cy="92" r="4" class="segment-off"/>
+
+            <!-- Cyfra 4 -->
+            <g transform="translate(220, 5) skewX(-6)">
+              <use id="d3-a" href="#seg-h" x="5" y="0" class="segment-off"/>
+              <use id="d3-f" href="#seg-v" x="0" y="5" class="segment-off"/>
+              <use id="d3-b" href="#seg-v" x="35" y="5" class="segment-off"/>
+              <use id="d3-g" href="#seg-h" x="5" y="42" class="segment-off"/>
+              <use id="d3-e" href="#seg-v" x="0" y="47" class="segment-off"/>
+              <use id="d3-c" href="#seg-v" x="35" y="47" class="segment-off"/>
+              <use id="d3-d" href="#seg-h" x="5" y="85" class="segment-off"/>
+            </g>
+          </svg>
+
+        </div>
+
+        <!-- JEDNOSTKI POMIARU -->
+        <div class="col-span-2 text-right font-bold text-xl md:text-3xl tracking-tight">
+          <span id="unit-text" class="lcd-text-on">MΩ</span>
+        </div>
+
+      </div>
+
+      <!-- LINIJKA ANALOGOWA (BAR GRAPH 61 SEGMENTÓW) -->
+      <div class="mt-6">
+        <div id="bargraph" class="flex items-end h-6 w-full"></div>
+        <div class="flex justify-between text-xs text-slate-600 mt-1 font-bold">
+          <span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INSPEKTOR RAMKI HEX RS232 -->
+    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800">
+      <div class="text-xs text-slate-400 mb-2 font-bold uppercase tracking-wider">Odebrana Ramka RS232 (14 Bajtów HEX)</div>
+      <div id="hexFrame" class="font-mono text-green-400 text-sm md:text-base break-all bg-slate-950 p-3 rounded-lg border border-slate-800">
+        -- -- -- -- -- -- -- -- -- -- -- -- -- --
+      </div>
+    </div>
+
+    <!-- PANEL SIMULATORA DLA TESTÓW -->
+    <div class="bg-slate-900 p-5 rounded-xl border border-slate-800 space-y-4">
+      <div class="text-sm font-bold text-slate-300">Szybki test symulatora:</div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <button onclick="simOL('MΩ')" class="p-2.5 bg-green-700 hover:bg-green-600 text-slate-950 font-bold text-xs rounded-lg border border-green-500 shadow">Test: 0.L (Rozwarty MΩ)</button>
+        <button onclick="simFrame('12.34', 'V', 'DC', 24)" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">Test: 12.34 V DC</button>
+        <button onclick="simFrame('-500.0', 'mV', 'AC', 50)" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">Test: -500.0 mV AC</button>
+        <button onclick="simFrame('00.00', 'Ω', 'DC', 0)" class="p-2.5 bg-slate-800 hover:bg-slate-700 text-xs rounded-lg border border-slate-700">Test: 00.00 Ω (Zwarcie)</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // FUKNCJA PRZEŁĄCZANIA MOTYWU
+    function changeTheme(theme) {
+      if (theme === 'green') {
+        document.documentElement.removeAttribute('data-theme');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+      document.title = 'vici-lcd-theme:' + theme;
+    }
+
+    // KODY CYFR 7-SEGMENTOWYCH
+    const digitSegments = {
+      '0': ['a','b','c','d','e','f'],
+      '1': ['b','c'],
+      '2': ['a','b','g','e','d'],
+      '3': ['a','b','c','d','g'],
+      '4': ['f','g','b','c'],
+      '5': ['a','f','g','c','d'],
+      '6': ['a','f','e','d','c','g'],
+      '7': ['a','b','c'],
+      '8': ['a','b','c','d','e','f','g'],
+      '9': ['a','b','c','d','f','g'],
+      'L': ['d','e','f'],
+      ' ': []
+    };
+
+    // GENEROWANIE BAR GRAPHA
+    const bgContainer = document.getElementById('bargraph');
+    for (let i = 0; i <= 60; i++) {
+      const seg = document.createElement('div');
+      seg.id = `bar-${i}`;
+      seg.className = `flex-1 bar-seg-off rounded-sm ${i % 10 === 0 ? 'h-full' : 'h-3/5'}`;
+      bgContainer.appendChild(seg);
+    }
+
+    function setDigit(index, char) {
+      const segs = ['a','b','c','d','e','f','g'];
+      const active = digitSegments[char] || [];
+      segs.forEach(s => {
+        const el = document.getElementById(`d${index}-${s}`);
+        if (el) el.className.baseVal = active.includes(s) ? 'segment-on' : 'segment-off';
+      });
+    }
+
+    function parseRS232Frame(frame) {
+      if (frame.length !== 14) return;
+
+      document.getElementById('hexFrame').innerText = Array.from(frame).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+      const isOverload = (frame[1] === 0x3F && frame[2] === 0x30 && frame[3] === 0x3A && frame[4] === 0x3F);
+
+      const sign = String.fromCharCode(frame[0]);
+      const isMinus = (sign === '-') && !isOverload;
+      document.getElementById('icon-MINUS').className = `w-full h-2 md:h-3 rounded-sm ${isMinus ? 'segment-on' : 'segment-off'}`;
+
+      if (isOverload) {
+        setDigit(0, '0');
+        setDigit(1, 'L');
+        setDigit(2, ' ');
+        setDigit(3, ' ');
+      } else {
+        for (let i = 0; i < 4; i++) {
+          setDigit(i, String.fromCharCode(frame[i + 1]));
+        }
+      }
+
+      const dpMap = { 0x31: 1, 0x32: 2, 0x33: 3, 0x34: 3 };
+      const dp = isOverload ? 1 : (dpMap[frame[6]] || 0);
+      for (let i = 1; i <= 3; i++) {
+        const el = document.getElementById(`dp-${i}`);
+        if (el) el.className.baseVal = (dp === i) ? 'segment-on' : 'segment-off';
+      }
+
+      const sb1 = frame[7], sb2 = frame[8], sb3 = frame[9], sb4 = frame[10];
+
+      const toggleIcon = (id, cond) => {
+        const el = document.getElementById(id);
+        if (el) el.className = cond ? 'lcd-text-on' : 'lcd-text-off';
+      };
+
+      toggleIcon('icon-AUTO', sb1 & 0x20);
+      toggleIcon('icon-DC', sb1 & 0x10);
+      toggleIcon('icon-AC', sb1 & 0x08);
+      toggleIcon('mode-diode', (sb3 & 0x04) || (sb2 & 0x80));
+      toggleIcon('mode-beep', sb3 & 0x08);
+      toggleIcon('icon-REL', sb1 & 0x04);
+      toggleIcon('icon-HOLD', sb1 & 0x02);
+
+      toggleIcon('icon-MAX', sb2 & 0x20);
+      toggleIcon('icon-MIN', sb2 & 0x10);
+      toggleIcon('icon-APO', sb2 & 0x08);
+      toggleIcon('icon-BAT', sb2 & 0x04);
+      toggleIcon('icon-RS232', true);
+
+      let prefix = '';
+      if (sb2 & 0x02) prefix = 'n';
+      else if (sb3 & 0x80) prefix = 'μ';
+      else if (sb3 & 0x40) prefix = 'm';
+      else if (sb3 & 0x20) prefix = 'k';
+      else if (sb3 & 0x10) prefix = 'M';
+
+      let unit = '';
+      if (sb4 & 0x80) unit = 'V';
+      else if (sb4 & 0x40) unit = 'A';
+      else if (sb4 & 0x20) unit = 'Ω';
+      else if (sb4 & 0x10) unit = 'hFE';
+      else if (sb4 & 0x08) unit = 'Hz';
+      else if (sb4 & 0x04) unit = 'F';
+      else if (sb4 & 0x02) unit = '°C';
+      else if (sb4 & 0x01) unit = '°F';
+      else if (sb3 & 0x02) unit = '%';
+
+      document.getElementById('unit-text').innerText = prefix + unit;
+
+      const barVal = frame[11] & 0x7F;
+      for (let i = 0; i <= 60; i++) {
+        const seg = document.getElementById(`bar-${i}`);
+        if (seg) seg.className = `flex-1 ${i <= barVal ? 'bar-seg-on' : 'bar-seg-off'} rounded-sm ${i % 10 === 0 ? 'h-full' : 'h-3/5'}`;
+      }
+    }
+
+    // SYMULATOR
+    function simOL(unitStr) {
+      const frame = new Uint8Array(14);
+      frame[0] = 0x2B;
+      frame[1] = 0x3F; frame[2] = 0x30; frame[3] = 0x3A; frame[4] = 0x3F;
+      frame[6] = 0x31;
+      frame[7] = 0x20; frame[8] = 0x08; frame[9] = 0x10; frame[10] = 0x20;
+      frame[11] = 0; frame[12] = 0x0D; frame[13] = 0x0A;
+      parseRS232Frame(frame);
+    }
+
+    function simFrame(valStr, unitStr, typeStr, barVal) {
+      const frame = new Uint8Array(14);
+      frame[0] = valStr.startsWith('-') ? 0x2D : 0x2B;
+      const cleanVal = valStr.replace('-', '').replace('.', '');
+      const padded = cleanVal.padStart(4, '0');
+      for (let i = 0; i < 4; i++) frame[i + 1] = padded.charCodeAt(i);
+
+      let dp = 0;
+      if (valStr.includes('.')) dp = valStr.replace('-', '').indexOf('.');
+      frame[6] = 0x30 + dp;
+
+      frame[7] = 0x20 | (typeStr === 'DC' ? 0x10 : 0x08);
+      frame[8] = 0x08;
+      frame[9] = unitStr.includes('m') ? 0x40 : (unitStr.includes('k') ? 0x20 : (unitStr.includes('M') ? 0x10 : 0x00));
+      frame[10] = unitStr.includes('Ω') ? 0x20 : 0x80;
+      frame[11] = barVal;
+      frame[12] = 0x0D; frame[13] = 0x0A;
+
+      parseRS232Frame(frame);
+    }
+
+    simOL('MΩ');
+  </script>
+</body>
+</html>

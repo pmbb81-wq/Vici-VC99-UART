@@ -16,7 +16,8 @@ try:
                                  QPushButton, QFrame, QMessageBox, QProgressBar,
                                  QColorDialog, QFileDialog, QAction, QActionGroup,
                                  QTabWidget, QCheckBox, QSpinBox, QFormLayout,
-                                 QDoubleSpinBox, QScrollArea, QGridLayout)
+                                 QDoubleSpinBox, QScrollArea, QGridLayout,
+                                QSizePolicy)
     log.info("Import PyQt5.QtCore...")
     from PyQt5.QtCore import Qt, QTimer, QTime, QSettings, QUrl
     log.info("Import PyQt5.QtGui...")
@@ -29,8 +30,17 @@ try:
     from serial_device import SerialDevice
     log.info("Import widgets...")
     from widgets import BarGraphWidget, TrendPlot, BgaProfileChart, BatteryCurveWidget
+    log.info("Import hfe_tool...")
+    from hfe_tool import HfeTool
     log.info("Import buzzer...")
     from buzzer import Buzzer
+    log.info("Import lcd_view...")
+    try:
+        from lcd_view import LcdView
+    except Exception:
+        LcdView = None
+        log.error("Nie mozna zaladowac QtWebEngine:\n%s",
+                  __import__("traceback").format_exc())
     log.info("Wszystkie importy OK")
 except Exception:
     import traceback
@@ -257,9 +267,9 @@ class MainWindow(QMainWindow):
          "curve": CURVE_LIFEPO4},
     ]
     APP_NAME = "VICI VC99 PC App"
-    APP_VERSION = "1.0"
+    APP_VERSION = "1.1"
     AUTHOR = "Krzysztof Nowacki"
-    GITHUB_URL = "https://github.com/pmbb81-wq"
+    GITHUB_URL = "https://github.com/pmbb81-wq/Vici-VC99-UART"
 
     DARK_QSS = """
         QWidget { background-color: #202225; color: #e6e6e6; }
@@ -322,6 +332,7 @@ class MainWindow(QMainWindow):
 
         self._frame_stamps = deque(maxlen=400)
         self._last_frame_time = None
+        self.lcd_window = None
 
         self.init_ui()
         self.refresh_ports()
@@ -481,6 +492,172 @@ class MainWindow(QMainWindow):
         self.build_options_tab()
         self.build_bga_tab()
         self.build_battery_tab()
+        self.build_lcd_tab()
+        self.build_service_tab()
+        self.tabs.currentChanged.connect(self.on_tab_changed)
+
+    def build_lcd_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.lcd_tab_layout = layout
+        self.lcd_window = None
+        if LcdView is None:
+            msg = QLabel(
+                "Nie mozna zaladowac QtWebEngine.\n"
+                "Zainstaluj: python -m pip install PyQtWebEngine")
+            msg.setAlignment(Qt.AlignCenter)
+            msg.setWordWrap(True)
+            layout.addWidget(msg)
+            self.lcd_view = None
+        else:
+            lcd_hint = QLabel(
+                "Prawy przycisk myszy na LCD przenosi go do osobnego okna. "
+                "Wybrany motyw LCD jest zapamiętywany.")
+            lcd_hint.setWordWrap(True)
+            lcd_hint.setStyleSheet("color: #888;")
+            lcd_hint.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            layout.addWidget(lcd_hint)
+            self.lcd_view = LcdView()
+            self.lcd_view.setToolTip(
+                "Prawy przycisk myszy: przenieś LCD do osobnego okna "
+                "lub przywróć go do zakładki.")
+            layout.addWidget(self.lcd_view)
+            self.lcd_view.menuRequested.connect(self.toggle_lcd_window)
+
+            self.lcd_detached_box = QWidget()
+            detached_layout = QVBoxLayout(self.lcd_detached_box)
+            detached_layout.addStretch(1)
+            detached_label = QLabel(
+                "LCD został wyciągnięty do osobnego okna.\n"
+                "Możesz je przenieść na inny monitor.")
+            detached_label.setAlignment(Qt.AlignCenter)
+            detached_layout.addWidget(detached_label)
+            restore_btn = QPushButton("Przywróć LCD do zakładki")
+            restore_btn.setToolTip(
+                "Przenieś ekran LCD z osobnego okna z powrotem do zakładki.")
+            restore_btn.clicked.connect(self.attach_lcd)
+            detached_layout.addWidget(restore_btn, 0, Qt.AlignHCenter)
+            detached_layout.addStretch(1)
+            self.lcd_detached_box.hide()
+            layout.addWidget(self.lcd_detached_box)
+        self.lcd_tab = tab
+        self.lcd_tab_index = self.tabs.insertTab(1, tab, "LCD")
+        self.tabs.setTabToolTip(
+            1, "Ekran LCD multimetru (widok HTML). Prawy przycisk myszy: osobne okno.")
+
+    def toggle_lcd_window(self, pos=None):
+        if self.lcd_window is None:
+            self.detach_lcd()
+        else:
+            self.attach_lcd()
+
+    def detach_lcd(self):
+        if self.lcd_view is None or self.lcd_window is not None:
+            return
+        self.lcd_tab_layout.removeWidget(self.lcd_view)
+        window = QMainWindow(self, Qt.Window)
+        window.setWindowTitle("VICI VC99 - LCD")
+        window.setCentralWidget(self.lcd_view)
+        window.setMinimumSize(640, 480)
+        window.resize(1020, 820)
+        self.lcd_window = window
+        self.lcd_detached_box.show()
+        window.show()
+        window.raise_()
+        window.activateWindow()
+
+    def attach_lcd(self):
+        window = self.lcd_window
+        if window is None:
+            return
+        view = window.takeCentralWidget()
+        if view is not None:
+            self.lcd_view = view
+            self.lcd_tab_layout.addWidget(view)
+            view.show()
+        self.lcd_detached_box.hide()
+        self.lcd_window = None
+        window.close()
+        window.deleteLater()
+
+    def build_service_tab(self):
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+
+        self.service_tabs = QTabWidget()
+        service_tab_font = self.service_tabs.tabBar().font()
+        service_tab_font.setBold(True)
+        self.service_tabs.tabBar().setFont(service_tab_font)
+        categories = (
+            ("Laptopy", "Serwis laptopów"),
+            ("Komputery", "Serwis komputerów"),
+            ("Karty graficzne", "Serwis kart graficznych"),
+            ("hFE", "Diagnostyka i parowanie tranzystorów hFE"),
+        )
+        self.hfe_tool = None
+        for name, tooltip in categories:
+            if name == "hFE":
+                self.hfe_tool = HfeTool()
+                page = QScrollArea()
+                page.setWidgetResizable(True)
+                page.setFrameShape(QFrame.NoFrame)
+                page.setWidget(self.hfe_tool)
+            else:
+                page = QWidget()
+                page_layout = QVBoxLayout(page)
+                page_layout.setContentsMargins(24, 24, 24, 24)
+                page_layout.setSpacing(8)
+
+                title = QLabel(name)
+                title_font = title.font()
+                title_font.setPointSize(16)
+                title_font.setBold(True)
+                title.setFont(title_font)
+                title.setAlignment(Qt.AlignCenter)
+
+                info = QLabel(
+                    "Miejsce na narzędzia serwisowe dla tej kategorii.\n"
+                    "Zawartość dodamy po ustaleniu wymagań."
+                )
+                info.setAlignment(Qt.AlignCenter)
+                info.setWordWrap(True)
+                info.setStyleSheet("color: #888;")
+
+                page_layout.addStretch(1)
+                page_layout.addWidget(title)
+                page_layout.addWidget(info)
+                page_layout.addStretch(1)
+
+            index = self.service_tabs.addTab(page, name)
+            self.service_tabs.setTabToolTip(index, tooltip)
+
+        service_hint = QLabel(
+            "Kategorie serwisowe: Laptopy, Komputery i Karty graficzne to "
+            "miejsca na przyszłe narzędzia. hFE zawiera diagnostykę "
+            "tranzystorów oraz parowanie NPN/PNP.")
+        service_hint.setWordWrap(True)
+        service_hint.setStyleSheet("color: #888;")
+        service_hint.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        layout.addWidget(service_hint)
+        layout.addWidget(self.service_tabs)
+        self.service_tab = tab
+        self.service_tab_index = self.tabs.addTab(tab, "Serwis")
+        self.tabs.setTabToolTip(self.service_tab_index, "Narzędzia serwisowe elektroniki")
+
+    def on_tab_changed(self, index):
+        if index != getattr(self, "lcd_tab_index", -1):
+            return
+        screen = self.screen()
+        w, h = 1020, 820
+        if screen is not None:
+            avail = screen.availableGeometry()
+            w = min(w, max(640, avail.width() - 40))
+            h = min(h, max(480, avail.height() - 60))
+        if self.width() < w or self.height() < h:
+            self.resize(max(self.width(), w), max(self.height(), h))
 
     def _tune_form(self, form):
         form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -1326,6 +1503,10 @@ class MainWindow(QMainWindow):
             f"<p>Wersja: {self.APP_VERSION}</p>"
             "<p>Czytnik multimetru VICI VC99 (FS9922-DMM4) przez UART.</p>"
             "<p>Port: 2400 8N1, ramki 14-bajtowe.</p>"
+            "<p><b>LCD:</b> prawy przycisk myszy przenosi ekran do osobnego "
+            "okna; wybrany motyw jest zapamiętywany.</p>"
+            "<p><b>Serwis:</b> kategorie Laptopy, Komputery, Karty graficzne "
+            "oraz diagnostyka i parowanie tranzystorów hFE.</p>"
             f"<p>Autor: {self.AUTHOR}</p>",
         )
 
@@ -1406,6 +1587,9 @@ class MainWindow(QMainWindow):
         self.reset_stats()
         self._frame_stamps.clear()
         self._last_frame_time = None
+        if getattr(self, "lcd_view", None) is not None:
+            self.lcd_view.set_live(
+                connected, self.port_combo.currentData() or "")
         if not connected:
             self.buzzer.stop()
             self.update_display(VC99Reading())
@@ -1415,6 +1599,8 @@ class MainWindow(QMainWindow):
         self.set_status(msg, True)
     
     def update_display(self, r):
+        if getattr(self, "hfe_tool", None) is not None:
+            self.hfe_tool.update_reading(r)
         if not r.valid:
             self.value_label.setText("--.--")
             self.suffix_label.clear()
@@ -1549,6 +1735,8 @@ class MainWindow(QMainWindow):
         r = VC99Parser.parse(frame_bytes)
         self.update_display(r)
         self.raw_label.setText("RAW: " + r.raw_hex)
+        if getattr(self, "lcd_view", None) is not None:
+            self.lcd_view.update_frame(frame_bytes)
         if self.recording:
             self.write_csv_row(r)
 
@@ -1712,6 +1900,7 @@ class MainWindow(QMainWindow):
 def main():
     try:
         log.info("Tworzenie QApplication...")
+        QApplication.setAttribute(Qt.AA_ShareOpenGLContexts, True)
         app = QApplication(sys.argv)
         log.info("Tworzenie MainWindow...")
         w = MainWindow()

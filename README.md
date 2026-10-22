@@ -9,8 +9,9 @@ z multimetru **VICI VC99** podłączonego przez UART/RS232 (2400 8N1).
 
 Poza podstawowym odczytem wartości oferuje: bargraf i trend, zapis CSV,
 sygnalizację dźwiękową ciągłości i trybu diody, profil reflow **BGA HOT-AIR**
-ze śledzeniem temperatury z termopary oraz estymację **SoC baterii** dla
-kilkudziesięciu typów ogniw i pakietów.
+ze śledzeniem temperatury z termopary, estymację **SoC baterii** dla
+kilkudziesięciu typów ogniw i pakietów, zakładkę **LCD** z zewnętrznym widokiem
+HTML oraz zakładkę **Serwis** z diagnostyką tranzystorów **hFE**.
 
 ![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
 ![PyQt5](https://img.shields.io/badge/GUI-PyQt5-green)
@@ -42,6 +43,17 @@ kilkudziesięciu typów ogniw i pakietów.
 - **FPS** i opóźnienie od ostatniej ramki w pasku statusu.
 - Surowa ramka w formacie HEX (diagnostyka).
 
+### LCD
+- Dodatkowa zakładka **LCD** z wiernym widokiem wyświetlacza VC99 w HTML
+  (QtWebEngine), z bargrafem, ikonami trybów i animacją segmentów.
+- Motyw LCD można zmienić w widoku HTML; wybór jest zapamiętywany w
+  `QSettings` i przywracany po restarcie aplikacji.
+- **Prawy przycisk myszy** na LCD przenosi ekran do osobnego okna — wygodne
+  przy pracy na drugim monitorze. Ponowne kliknięcie lub przycisk
+  **Przywróć LCD do zakładki** wraca do widoku wbudowanego.
+- Wymagany jest plik `html/gemini-code-lcd 2.html` obok EXE. Plik jest
+  dołączony do wydania 1.1.
+
 ### Opcje
 - **Brzęczyk ciągłości** — próg rezystancji, częstotliwość, głośność, test.
 - **Tryb diody (jak ZOYI 706S)** — 1 pisk dla zwykłej diody, 2 piski dla
@@ -69,6 +81,23 @@ kilkudziesięciu typów ogniw i pakietów.
 - Napięcie całkowite i **V/ogniwo**, SoC z krzywej rozładowania,
   status (Pełna / OK / Niska / Krytyczna) i wykres charakterystyki.
 - Profil własny (liniowy) oraz zapamiętywanie ustawień.
+
+### Serwis
+- Zakładka z kategoriami: **Laptopy**, **Komputery**, **Karty graficzne**
+  (miejsca na przyszłe narzędzia) oraz **hFE**.
+- **hFE — diagnostyka tranzystora** na podstawie pomiaru z multimetru:
+  - `≤ 5` — brak tranzystora lub obwód rozwarty,
+  - `6–9` — bardzo niska wartość, sprawdź osadzenie i styki,
+  - `10–800` — tranzystor sprawny; dodatkowo klasy BC547:
+    A `110–220`, B `200–450`, C `420–800`,
+  - `801–900` — wysoka wartość, sprawdź pomiar,
+  - `> 900` lub `O.L` — zwarcie/przebicie złącza C-E.
+- **Parowanie NPN/PNP** dla par audio: zapisz bieżący pomiar jako NPN i PNP,
+  a aplikacja obliczy różnicę względną
+  `|NPN - PNP| / ((NPN + PNP) / 2) × 100%`.
+  Poniżej `5%` — idealna para, `5–10%` — akceptowalna, powyżej `10%` — duża
+  rozbieżność.
+- Wartości parowania są przechowywane tylko w pamięci bieżącej sesji.
 
 ## Sprzęt i protokół
 
@@ -135,13 +164,31 @@ warstwa 0,2 mm, wypełnienie 20–30%.
 ## Instalacja (gotowy EXE)
 
 Pobierz najnowszą wersję:
-**[Releases → VICI_VC99_FINAL.exe](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)**
+**[Releases → VICI VC99 UART 1.1](https://github.com/pmbb81-wq/Vici-VC99-UART/releases/latest)**
 
 1. Wejdź w zakładkę **Releases** tego repozytorium.
-2. Pobierz `VICI_VC99_FINAL.exe`.
-3. Podłącz multimetr, uruchom program i wybierz port COM.
+2. Pobierz `VICI_VC99_1.1_Windows.zip` (EXE + wymagany HTML) albo osobno
+   `VICI_VC99_FINAL.exe` i `gemini-code-lcd 2.html`.
+3. Rozpakuj pliki tak, aby zachować strukturę:
+   ```
+   VICI_VC99_FINAL.exe
+   html\
+     gemini-code-lcd 2.html
+   ```
+4. Podłącz multimetr, uruchom program i wybierz port COM.
 
-Program nie wymaga instalacji Pythona ani dodatkowych bibliotek.
+Program nie wymaga instalacji Pythona ani dodatkowych bibliotek. Plik HTML
+jest potrzebny tylko zakładce **LCD**; bez niego pozostałe funkcje działają
+normalnie.
+
+### Co nowego w wersji 1.1
+- Nowa zakładka **LCD** z zewnętrznym widokiem HTML wyświetlacza VC99.
+- Zapamiętywanie wybranego motywu LCD.
+- Odłączanie LCD do osobnego okna prawym przyciskiem myszy.
+- Nowa zakładka **Serwis** z kategoriami Laptopy, Komputery, Karty graficzne
+  i hFE.
+- Diagnostyka hFE z klasyfikacją tranzystora oraz parowaniem NPN/PNP.
+- Opisy i podpowiedzi nowych opcji w interfejsie aplikacji.
 
 ## Uruchomienie ze źródeł
 
@@ -156,10 +203,12 @@ Wymagania: Python 3.9+ oraz PyQt5 i pyserial (patrz `requirements.txt`).
 
 ```powershell
 cd vici-vc99-py/src
-pyinstaller --clean --onefile --windowed --hidden-import PyQt5.QtSerialPort --name VICI_VC99_FINAL main.py
+pyinstaller --clean --noconfirm VICI_VC99_FINAL.spec
 ```
 
 Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
+Plik `html/gemini-code-lcd 2.html` nie jest osadzany w EXE — należy skopiować
+go do folderu `html` obok pliku wykonywalnego.
 
 ## Struktura projektu
 
@@ -174,11 +223,15 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
 │   ├── FS9922-DMM4-DS-15_EN.pdf  # dokumentacja układu
 │   ├── stl-preview.png         # podgląd obudowy
 │   └── screenshots/            # zrzuty ekranu do README
+├── html/
+│   └── gemini-code-lcd 2.html  # widok LCD wymagany przez zakładkę LCD
 ├── vici_vc99_protocol.txt      # notatki o protokole ramki
 └── vici-vc99-py/
     └── src/
         ├── main.py             # okno główne i wszystkie zakładki
         ├── widgets.py          # bargraf, trend, wykres BGA, krzywa baterii
+        ├── lcd_view.py         # QtWebEngine, motyw LCD i menu kontekstowe
+        ├── hfe_tool.py         # diagnostyka i parowanie tranzystorów hFE
         ├── buzzer.py           # generowanie tonów i wzorów pisków (winsound)
         ├── vc99_parser.py      # parser 14-bajtowej ramki
         ├── serial_device.py    # obsługa QSerialPort
@@ -193,6 +246,12 @@ Gotowy plik pojawi się w `vici-vc99-py/src/dist/VICI_VC99_FINAL.exe`.
 - Tryb temperatury obsługuje termoparę **typu K**.
 - SoC baterii jest estymacją napięciową — obciążenie, temperatura i wiek
   ogniwa wpływają na wynik.
+- Zakładka LCD wymaga pliku `html/gemini-code-lcd 2.html`; bez niego ekran
+  LCD nie zostanie wyświetlony.
+- Widok LCD korzysta z CDN Tailwind CSS i Google Fonts — pełny wygląd wymaga
+  połączenia z internetem.
+- Diagnostyka hFE opiera się na zliczeniach z multimetru w trybie hFE;
+  parowanie NPN/PNP jest przechowywane tylko do zamknięcia aplikacji.
 - Dźwięki korzystają z `winsound`, więc działają tylko w Windows.
 
 ## Licencja
@@ -213,8 +272,10 @@ zachowania informacji o autorze i treści licencji. Pełna treść:
 Windows desktop app for the VICI VC99 multimeter (UART, 2400 8N1).
 Features: live reading with bargraph/trend, min/max/avg, CSV logging,
 continuity and diode buzzers, a BGA reflow profile tab with live
-thermocouple tracking, and battery SoC estimation with 33 chemistry/pack
-profiles. Built with Python and PyQt5; a standalone EXE is available in
-Releases.
+thermocouple tracking, battery SoC estimation with 33 chemistry/pack
+profiles, an HTML LCD tab with persistent theme and detachable window, and
+a Service tab with transistor hFE diagnostics and NPN/PNP matching.
+Built with Python and PyQt5; a standalone EXE and the required LCD HTML
+file are available in Releases.
 
 Released under the MIT license — free to use, copy, modify and redistribute.
